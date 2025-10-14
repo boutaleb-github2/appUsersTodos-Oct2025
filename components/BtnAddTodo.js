@@ -8,7 +8,7 @@ export default function BtnAddTodo({toggleModal,toggleDialogType}) {
     <Pressable style={styles.container} onPress={()=>{
        toggleModal(true);
        toggleDialogType("todo");
-    }}>
+      }}>
       <View>
         <FontAwesome5 name="plus-circle" size={30} color={colors.white} />
       </View>

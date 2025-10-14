@@ -1,53 +1,62 @@
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import constants from '../constants/colors';
 const colors=constants.colors;
 
-export default function UsersTodoList({usersTodos}) {
-  console.log("usersTodo",usersTodos.users);
+export default function UsersTodoList({usersTodos,currentUser,toggleCurrentUser}) {
+ const onPressPourAttribuerCurrentUser = (e)=>{
+  
+  console.log("eeeeeeeeeeeeeeeee",e);
+  toggleCurrentUser(e)  
+ }
 
-  const renderItem = ({item})=>{
+  const renderItem = ({item,currentUser})=>{
+    console.log("item.name dans UsersTodosListeggggggggggg",item)
     return(
-      <View style={styles.viewTodo}>
-            <View >
+      <>
+      <Pressable style={styles.viewTodo} onPress={()=>onPressPourAttribuerCurrentUser({"users":[item]})}>
+            <View>
              <FontAwesome5 name="dot-circle" size={24} color="black" />
             </View>
             <View>
               <Text style={styles.title}> {item.name} </Text>
             </View>            
-        </View>      
+        </Pressable>
+        {item.todos.length > 0 &&
+        <View style={styles.containerTodos}> 
+        
+        <FlatList
+          data={item.todos}
+          renderItem={({item})=>{
+            return(
+              <View style={styles.viewTodo}>
+            <View >
+             <FontAwesome5 name="dot-circle" size={24} color="black" />
+            </View>
+            <View>
+              <Text style={styles.title}> {item.todoTitle} </Text>
+            </View>            
+        </View>
+            )
+          }}
+        />
+        
+        </View>
+        }
+      </>     
     )
 
   }
   return (
     <View style={styles.container}>      
-        <View style={styles.viewTodo}>
-            <View >
-             <FontAwesome5 name="dot-circle" size={24} color="black" />
-            </View>
-            <View>
-              <Text style={styles.title}> utilisateur 1 </Text>
-            </View>            
-        </View>
-
-        <View style={styles.viewTodo}>
-            <View >
-             <FontAwesome5 name="circle" size={24} color="black" />
-            </View>
-            <View >
-              <Text style={styles.title}> Utilisateur 2 </Text>
-            </View>            
-        </View>
+        
         <FlatList
           data={usersTodos.users}
           renderItem={renderItem}
           keyExtractor={(item)=>item.id}
         />
-
-        
-
-
     </View>
+    
   );
 }
 
@@ -55,6 +64,11 @@ const styles=StyleSheet.create({
   container:{
     padding:20,
     backgroundColor:colors.primary,   
+  },
+  containerTodos:{
+    padding:20,
+    backgroundColor:"red",
+    width:"70%", margin:"auto"  
   },
   viewTodo:{
     flexDirection:'row',
