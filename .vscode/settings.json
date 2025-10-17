@@ -8,7 +8,7 @@
   // Actions automatiques sur sauvegarde
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",          // corrige si tu demandes manuellement
-    "source.organizeImports": "always",   // nettoie et trie les imports automatiquement
+   // "source.organizeImports": "always",   // nettoie et trie les imports automatiquement
     "source.sortMembers": "explicit"      // inutile en JS mais ok si tu actives TS plus tard
   },
 

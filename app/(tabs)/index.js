@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, StyleSheet } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import AddUserOrTodoModal from "../../components/AddUserOrTodoModal";
@@ -7,7 +7,9 @@ import Divider from "../../components/Divider";
 import Header from "../../components/Header";
 import UserAvatar from "../../components/UserAvatar";
 import UsersTodoList from "../../components/UsersTodoList";
+
 import constants from "../../constants/colors";
+import { loadUsers_v1,clearStorage,saveUsers_v1 } from '../../storage/storage';
 const colors=constants.colors;
 /** 
 {
@@ -34,6 +36,32 @@ const [userTextInput,setUserTextInput]=useState("");
 const [dialogType,setDialogType]=useState("todo");// "todo" or "user"
 const [usersTodos,setUsersTodos]=useState({"users":[]});
 const [currentUser,setCurrentUser]=useState({"users":[{ "id":'id',"name":"-- --","todos":[]}]})
+/**
+useEffect(() => {
+  if (usersTodos.users.length > 0) {
+    saveUsers_v1(usersTodos);
+  }
+}, [usersTodos]);
+ */
+useEffect(()=>{
+   // clearStorage()
+  const fetchUsersTodos = async ()=>{
+    try{
+    const uploadUsersTodos = await loadUsers_v1();
+    if(!uploadUsersTodos){
+      console.log("no users in AsyncStorage, fetchUsersTodos()");
+      setUsersTodos({"users":[]});      
+    }else{
+      console.log("usersTodos updated from AsyncStorage, fetchUsersTodos()");
+      setUsersTodos(uploadUsersTodos);  
+    }
+  }catch(e){
+     console.log("error produced in fetchUsersTodos()",e);
+     return false
+  }
+  }
+  fetchUsersTodos();
+},[])
 
 // functions
 const toggleModal=(e)=>{
@@ -51,7 +79,7 @@ const toggleTodoTextInput=(e)=>{
 const onChangeTodo = (e) => setTodoTextInput(e); // cette fonction est pour gerer le onChangeText dans le AppDialog
 const onChangeUser = (e) => setUserTextInput(e); // cette fonction est pour gerer le onChangeText dans le AppDialog
 
-const addUser = ()=> {
+const addUser = async ()=> {
   if(!userTextInput.trim() || /[,.\-0-9]/.test(userTextInput)) {
     Alert.alert("le nom ne dois pas etre vide ni contenir un caractere invalide {, .,- des chiffres}");
     console.warn("le nom ne dois pas etre vide ni contenir un caractere invalide {, .,- des chiffres}");
@@ -63,9 +91,12 @@ const addUser = ()=> {
   const id = "u" + Date.now();
   const newUser = {"id":id,"name":userTextInput,"todos":[]};
   setUsersTodos({"users":[...usersTodos.users,newUser]});
-  setUserTextInput("")
+  setUserTextInput("");
+  // save in asyncstorage
+  await saveUsers_v1({"users": [...usersTodos.users,newUser]});
+
 }
-const addTodos = (userId,input)=>{
+const addTodos = async (userId,input)=>{
     if(!input.trim()) {
     //  Alert.alert("le nom ne dois pas etre vide ni contenir un caractere invalide {, .,- des chiffres}");
     //  console.warn("le nom ne dois pas etre vide ni contenir un caractere invalide {, .,- des chiffres}");
@@ -88,8 +119,9 @@ const addTodos = (userId,input)=>{
       }
    )   
    setUsersTodos({"users":updateUsers});
-   setTodoTextInput("")
-
+   setTodoTextInput("");
+   // save in asyncstorage
+  await saveUsers_v1({"users": updateUsers})
  } 
 
   return (
